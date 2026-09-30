@@ -67,7 +67,7 @@ class BrowserlessClient:
 
         Args:
             url: The URL to fetch.
-            wait_for_event: Wait for a page event (e.g. "networkidle", "load").
+            wait_for_event: Name of a custom DOM event to wait for before returning (e.g. "customReady"). Lifecycle events such as "load" or "networkidle" do not fire here.
             wait_for_timeout_ms: Extra wait after page load.
             wait_for_selector: CSS selector to wait for.
             wait_for_selector_timeout_ms: Timeout for selector wait.
@@ -111,7 +111,7 @@ class BrowserlessClient:
 
         Args:
             url: The URL to fetch.
-            wait_for_event: Wait for a page event (e.g. "networkidle", "load").
+            wait_for_event: Name of a custom DOM event to wait for before returning (e.g. "customReady"). Lifecycle events such as "load" or "networkidle" do not fire here.
             wait_for_timeout_ms: Extra wait after page load.
             wait_for_selector: CSS selector to wait for.
             wait_for_selector_timeout_ms: Timeout for selector wait.
@@ -127,7 +127,7 @@ class BrowserlessClient:
         }
 
         if wait_for_event:
-            payload["waitForEvent"] = wait_for_event
+            payload["waitForEvent"] = {"event": wait_for_event}
         if wait_for_timeout_ms > 0:
             payload["waitForTimeout"] = wait_for_timeout_ms
         if wait_for_selector:

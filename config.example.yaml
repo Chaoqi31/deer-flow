@@ -1083,7 +1083,7 @@ tools:
   #   #                                    # and loads subresources on its own side, so the target-URL guard above
   #   #                                    # cannot be enforced end-to-end. Set true ONLY when its outbound network
   #   #                                    # is isolated from private and cloud-metadata networks.
-  #   # wait_for_event: "networkidle"    # Wait for a page event before returning (e.g. "load", "networkidle")
+  #   # wait_for_event: "customReady"    # Custom DOM event to wait for before returning (lifecycle events such as "load" do not fire here)
   #   # wait_for_timeout_ms: 2000        # Extra wait after page load in milliseconds
   #   # wait_for_selector: "article"     # CSS selector to wait for before returning
   #   # wait_for_selector_timeout_ms: 5000  # How long to wait for that selector, in milliseconds
