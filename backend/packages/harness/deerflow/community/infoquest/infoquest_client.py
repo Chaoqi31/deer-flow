@@ -304,16 +304,12 @@ class InfoQuestClient:
             if results.get("images_results"):
                 images_results = results["images_results"]
                 for result in images_results:
-                    clean_result = {}
-                    if "original" in result:
-                        clean_result["image_url"] = result["original"]
-                        url = clean_result["image_url"]
-                        if isinstance(url, str) and url and url not in seen_urls:
-                            seen_urls.add(url)
-                            clean_results.append(clean_result)
-                            counts["images"] += 1
-                    if "title" in result:
-                        clean_result["title"] = result["title"]
+                    url = result.get("original")
+                    if isinstance(url, str) and url and url not in seen_urls:
+                        seen_urls.add(url)
+                        # No thumbnail field to map, so reuse the original as Brave and Serper do when one is missing.
+                        clean_results.append({"title": result.get("title", ""), "image_url": url, "thumbnail_url": url, "source_url": result.get("url", "")})
+                        counts["images"] += 1
         logger.debug(f"Results processing completed | total_results={len(clean_results)} | images={counts['images']} | unique_urls={len(seen_urls)}")
 
         return clean_results
@@ -390,7 +386,13 @@ class InfoQuestClient:
                 logger.debug(f"InfoQuest Image Search - Processing raw image search results: {results}")
                 cleaned_results = self.clean_results_with_image_search(results["results"])
 
-                result_json = json.dumps(cleaned_results, indent=2, ensure_ascii=False)
+                output = {
+                    "query": query,
+                    "total_results": len(cleaned_results),
+                    "results": cleaned_results,
+                    "usage_hint": "Use the 'image_url' values as reference images in image generation. Download them first if needed.",
+                }
+                result_json = json.dumps(output, indent=2, ensure_ascii=False)
 
                 logger.debug(f"InfoQuest Image Search - Image search tool execution completed | mode=asynchronous | results_count={len(cleaned_results)}")
                 return result_json
