@@ -197,6 +197,24 @@ class TestBrowserlessClient:
             payload = mock_ctx.post.call_args.kwargs["json"]
             assert payload["waitForSelector"]["selector"] == "article"
 
+    async def test_fetch_html_with_wait_for_event(self):
+        """fetch_html sends waitForEvent as the {"event": ...} object Browserless requires."""
+        with patch("deerflow.community.browserless.browserless_client.httpx.AsyncClient") as mock_cls:
+            mock_ctx = MagicMock()
+            mock_cls.return_value.__aenter__.return_value = mock_ctx
+
+            mock_resp = MagicMock()
+            mock_resp.status_code = 200
+            mock_resp.text = "<html>OK</html>"
+            mock_resp.headers = {}
+            mock_ctx.post = AsyncMock(return_value=mock_resp)
+
+            client = BrowserlessClient(base_url="http://browserless:3000")
+            await client.fetch_html("https://example.com", wait_for_event="customReady")
+
+            payload = mock_ctx.post.call_args.kwargs["json"]
+            assert payload["waitForEvent"] == {"event": "customReady"}
+
     async def test_fetch_html_with_reject_params(self):
         """fetch_html sends reject params when set."""
         with patch("deerflow.community.browserless.browserless_client.httpx.AsyncClient") as mock_cls:
