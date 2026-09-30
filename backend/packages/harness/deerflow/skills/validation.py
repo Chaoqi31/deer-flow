@@ -7,7 +7,7 @@ import re
 from pathlib import Path
 
 from deerflow.skills.frontmatter import ALLOWED_FRONTMATTER_PROPERTIES, split_skill_markdown
-from deerflow.skills.parser import parse_allowed_tools
+from deerflow.skills.parser import _ENV_VAR_NAME_RE, parse_allowed_tools
 from deerflow.skills.types import SKILL_MD_FILE
 
 
@@ -93,6 +93,15 @@ def validate_skill_frontmatter_text(content: str) -> tuple[bool, str, str | None
                 if item.get("name") is None:
                     return False, "required-secrets entry without a name has an optional field that must be a boolean", None
                 return False, f"required-secrets entry {item.get('name')!r} optional must be a boolean", None
+            if isinstance(item, str):
+                secret_name = item.strip()
+            elif isinstance(item, dict):
+                secret_name = str(item.get("name") or "").strip()
+            else:
+                continue
+            # The loader drops entries whose name is not a valid env var name.
+            if not _ENV_VAR_NAME_RE.match(secret_name):
+                return False, f"required-secrets entry {secret_name!r} must be a valid environment variable name", None
 
     secrets_autonomous = frontmatter.get("secrets-autonomous")
     if secrets_autonomous is not None and not isinstance(secrets_autonomous, bool):
