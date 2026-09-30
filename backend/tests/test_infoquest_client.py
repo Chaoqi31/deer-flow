@@ -205,6 +205,8 @@ class TestInfoQuestClient:
 
         assert len(cleaned) == 1
         assert cleaned[0]["image_url"] == "https://example.com/image1.jpg"
+        assert cleaned[0]["thumbnail_url"] == "https://example.com/image1.jpg"
+        assert cleaned[0]["source_url"] == "https://example.com/page1"
         assert cleaned[0]["title"] == "Test Image 1"
 
     def test_clean_results_with_image_search_empty(self):
@@ -306,11 +308,13 @@ class TestImageSearch:
         # Check if result is a valid JSON string with expected content
         result_data = json.loads(result)
 
-        assert len(result_data) == 1
+        assert result_data["query"] == "cat"
+        assert result_data["total_results"] == 1
+        assert "usage_hint" in result_data
 
-        assert result_data[0]["image_url"] == "https://example.com/image1.jpg"
+        assert result_data["results"][0]["image_url"] == "https://example.com/image1.jpg"
 
-        assert result_data[0]["title"] == "Test Image"
+        assert result_data["results"][0]["title"] == "Test Image"
 
     @patch("deerflow.community.infoquest.infoquest_client.httpx.AsyncClient")
     @pytest.mark.anyio

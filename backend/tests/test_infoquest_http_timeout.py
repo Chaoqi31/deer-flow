@@ -42,7 +42,10 @@ async def test_infoquest_sets_transport_timeout(monkeypatch, operation):
     client = InfoQuestClient(fetch_timeout=10, fetch_navigation_timeout=20)
     result = await getattr(client, operation)("https://example.com" if operation == "fetch" else "query")
 
-    assert result == ("<p>Content</p>" if operation == "fetch" else "[]")
+    if operation == "image_search":
+        assert json.loads(result)["results"] == []
+    else:
+        assert result == ("<p>Content</p>" if operation == "fetch" else "[]")
     mock_async_client_cls.return_value.post.assert_awaited_once()
     assert mock_async_client_cls.return_value.post.call_args.kwargs["timeout"] == 30
     if operation == "fetch":
