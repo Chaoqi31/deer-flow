@@ -420,7 +420,7 @@ def test_windows_reserved_root_is_blocked(tmp_path, name):
 @requires_safe_capture
 def test_required_secrets_normalization_and_invalid_warning(package):
     storage, root = package
-    (root / "SKILL.md").write_text('---\nname: sample\ndescription: Example\nrequired-secrets:\n - " API_KEY "\n - name: API_KEY\n - name: " OPTIONAL_KEY "\n   optional: true\n - name: []\n - 123\n---\n', encoding="utf-8")
+    (root / "SKILL.md").write_text('---\nname: sample\ndescription: Example\nrequired-secrets:\n - " API_KEY "\n - name: API_KEY\n - name: " OPTIONAL_KEY "\n   optional: true\n - 123\n---\n', encoding="utf-8")
     manifest = export.export_manifest(storage, "sample")
     assert manifest["requirements"]["required_secrets"] == [{"name": "API_KEY", "optional": False}, {"name": "OPTIONAL_KEY", "optional": True}]
     assert any(warning["code"] == "skill_export_invalid_declaration" for warning in manifest["warnings"])

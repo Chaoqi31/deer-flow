@@ -82,6 +82,20 @@ class TestValidateSkillFrontmatter:
         assert msg == "required-secrets entry without a name has an optional field that must be a boolean"
         assert name is None
 
+    @pytest.mark.parametrize(
+        ("entry", "secret_name"),
+        [("my secret", "my secret"), ("1BAD", "1BAD"), ("{name: also bad, optional: true}", "also bad"), ("{optional: true}", "")],
+    )
+    def test_required_secrets_rejects_invalid_env_var_names(self, tmp_path, entry, secret_name):
+        skill_dir = _write_skill(
+            tmp_path,
+            f"---\nname: my-skill\ndescription: A skill\nrequired-secrets:\n  - {entry}\n---\n\nBody\n",
+        )
+        valid, msg, name = _validate_skill_frontmatter(skill_dir)
+        assert valid is False
+        assert msg == f"required-secrets entry {secret_name!r} must be a valid environment variable name"
+        assert name is None
+
     def test_allows_argument_hint(self, tmp_path):
         skill_dir = _write_skill(
             tmp_path,
